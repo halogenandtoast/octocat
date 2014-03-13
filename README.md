@@ -1,24 +1,12 @@
 # Octocat
 
-TODO: Write a gem description
+An OSX command line tool for GitHub
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Octocat is OSX specific due to its relience on the credential-osxkeychain. You'll need to setup credential-osxkeychain correctly.
 
-    gem 'octocat'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install octocat
-
-## Usage
-
-TODO: Write usage instructions here
+If you have GitHub 2FA enabled, you'll want to generate a Personal Access Token.
 
 ## Contributing
 
