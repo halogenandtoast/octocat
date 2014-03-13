@@ -1,3 +1,5 @@
+require 'uri'
+
 module Octocat
   class CommandLine
     COMMANDS = %w(open-branch new-pr open-pr compare-branch help)
@@ -8,17 +10,24 @@ module Octocat
     end
 
     def run
-      git_url = `git remote show -n origin | grep 'URL' | head -1`.chomp.split(": ", 2).last
-      project = git_url.split(":", 2).last.gsub(/\.git$/, "")
-      if @command == "open-branch"
+      if command
+        run_command
+      else
+        puts "Octocat Version #{VERSION}"
+        help
+      end
+    end
+
+    def run_command
+      if command == "open-branch"
         api.open_branch(project, current_branch)
-      elsif @command == "new-pr"
+      elsif command == "new-pr"
         api.new_pr(project, current_branch)
-      elsif @command == "open-pr"
+      elsif command == "open-pr"
         api.open_pr(project, current_branch)
-      elsif @command == "compare-branch"
+      elsif command == "compare-branch"
         api.compare_branch(project, current_branch)
-      elsif @command == "help"
+      elsif command == "help"
         help
       else
         puts "Unknown Command. The known commands are:"
@@ -39,6 +48,23 @@ module Octocat
 
     private
 
-    attr_reader :api
+    attr_reader :api, :command
+
+    def git_url
+      @git_url ||= `git remote show -n origin | grep 'URL' | head -1`.chomp.split(": ", 2).last
+    end
+
+    def project
+      @project ||= get_project
+    end
+
+    def get_project
+      if git_url.include? "@"
+        git_url.split(":", 2).last.gsub(/\.git$/, "")
+      else
+        URI(git_url).path[1..-1].gsub(/\.git$/, "")
+      end
+    end
+
   end
 end
