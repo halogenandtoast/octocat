@@ -1,31 +1,44 @@
 module Octocat
   class CommandLine
+    COMMANDS = %w(open-branch new-pr open-pr compare-branch help)
+
     def initialize arguments
       @command = arguments.first
+      @api = API.new
     end
 
     def run
       git_url = `git remote show -n origin | grep 'URL' | head -1`.chomp.split(": ", 2).last
       project = git_url.split(":", 2).last.gsub(/\.git$/, "")
       if @command == "open-branch"
-        `open #{branch_url_for(project, current_branch)}`
+        api.open_branch(project, current_branch)
       elsif @command == "new-pr"
-        `open #{pr_url_for(project, current_branch)}`
+        api.new_pr(project, current_branch)
       elsif @command == "open-pr"
-        `open #{API.pull_request_url_for_branch(project, current_branch)}`
+        api.open_pr(project, current_branch)
+      elsif @command == "compare-branch"
+        api.compare_branch(project, current_branch)
+      elsif @command == "help"
+        help
+      else
+        puts "Unknown Command. The known commands are:"
+        help
       end
+    end
+
+    def help
+      COMMANDS.each do |command|
+        puts "- #{command}"
+      end
+      puts
     end
 
     def current_branch
       `git rev-parse --abbrev-ref HEAD`.chomp
     end
 
-    def branch_url_for(project, current_branch)
-      "https://github.com/#{project}/tree/#{current_branch}"
-    end
+    private
 
-    def pr_url_for(project, branch)
-      "https://github.com/#{project}/pull/new/#{current_branch}"
-    end
+    attr_reader :api
   end
 end
