@@ -1,4 +1,4 @@
-# Octocat
+# Octocat :octocat:
 
 An OSX command line tool for GitHub
 
